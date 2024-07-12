@@ -20,7 +20,7 @@ Prerequisites:
 ```
 git clone https://github.com/apache/flink-connector-kafka.git
 cd flink-connector-kafka
-mvn clean package -DskipTests
+mvn clean package -DskipTests -Dcheckstyle.skip
 ```
 
 The resulting jars can be found in the `target` directory of the respective module.

@@ -127,35 +127,26 @@ public class FlinkKafkaShuffle {
      * watermarks are monotonically increasing. Hence a consumer task needs to know
      * `producerParallelism` as well.
      *
+     * @param <T>                   Type of the input data stream
+     * @param <K>                   Type of key
+     * @param persistentKeyByParams
+     * @param keySelector           Key selector to retrieve key from `dataStream'
      * @see FlinkKafkaShuffle#writeKeyBy
      * @see FlinkKafkaShuffle#readKeyBy
-     * @param dataStream Data stream to be shuffled
-     * @param topic Kafka topic written to
-     * @param producerParallelism Parallelism of producer
-     * @param numberOfPartitions Number of partitions
-     * @param properties Kafka properties
-     * @param keySelector Key selector to retrieve key from `dataStream'
-     * @param <T> Type of the input data stream
-     * @param <K> Type of key
      */
     public static <T, K> KeyedStream<T, K> persistentKeyBy(
-            DataStream<T> dataStream,
-            String topic,
-            int producerParallelism,
-            int numberOfPartitions,
-            Properties properties,
-            KeySelector<T, K> keySelector) {
+            persistentKeyByParams<T> persistentKeyByParams, KeySelector<T, K> keySelector) {
         // KafkaProducer#propsToMap uses Properties purely as a HashMap without considering the
         // default properties
         // So we have to flatten the default property to first level elements.
-        Properties kafkaProperties = PropertiesUtil.flatten(properties);
-        kafkaProperties.setProperty(PRODUCER_PARALLELISM, String.valueOf(producerParallelism));
-        kafkaProperties.setProperty(PARTITION_NUMBER, String.valueOf(numberOfPartitions));
+        Properties kafkaProperties = PropertiesUtil.flatten(persistentKeyByParams.getProperties());
+        kafkaProperties.setProperty(PRODUCER_PARALLELISM, String.valueOf(persistentKeyByParams.getProducerParallelism()));
+        kafkaProperties.setProperty(PARTITION_NUMBER, String.valueOf(persistentKeyByParams.getNumberOfPartitions()));
 
-        StreamExecutionEnvironment env = dataStream.getExecutionEnvironment();
+        StreamExecutionEnvironment env = persistentKeyByParams.getDataStream().getExecutionEnvironment();
 
-        writeKeyBy(dataStream, topic, kafkaProperties, keySelector);
-        return readKeyBy(topic, env, dataStream.getType(), kafkaProperties, keySelector);
+        writeKeyBy(persistentKeyByParams.getDataStream(), persistentKeyByParams.getTopic(), kafkaProperties, keySelector);
+        return readKeyBy(persistentKeyByParams.getTopic(), env, persistentKeyByParams.getDataStream().getType(), kafkaProperties, keySelector);
     }
 
     /**
@@ -199,12 +190,7 @@ public class FlinkKafkaShuffle {
             Properties properties,
             int... fields) {
         return persistentKeyBy(
-                dataStream,
-                topic,
-                producerParallelism,
-                numberOfPartitions,
-                properties,
-                keySelector(dataStream, fields));
+                new persistentKeyByParams<>(dataStream, topic, producerParallelism, numberOfPartitions, properties), keySelector(dataStream, fields));
     }
 
     /**

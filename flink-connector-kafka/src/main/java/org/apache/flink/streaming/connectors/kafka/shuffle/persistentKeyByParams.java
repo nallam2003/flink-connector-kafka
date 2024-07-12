@@ -11,6 +11,15 @@ public class persistentKeyByParams<T> {
     private final int numberOfPartitions;
     private final Properties properties;
 
+    /**
+     * @param dataStream Data stream to be shuffled
+     * @param topic Kafka topic written to
+     * @param producerParallelism Parallelism of producer
+     * @param numberOfPartitions Number of partitions
+     * @param properties Kafka properties
+     * @param <T> Type of the input data stream
+     * @param <K> Type of key
+     */
     public persistentKeyByParams(DataStream<T> dataStream, String topic, int producerParallelism, int numberOfPartitions, Properties properties) {
         this.dataStream = dataStream;
         this.topic = topic;
