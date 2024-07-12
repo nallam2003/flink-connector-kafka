@@ -252,14 +252,7 @@ class KafkaWriter<IN>
     }
 
     private void abortCurrentProducer() {
-        if (currentProducer.isInTransaction()) {
-            try {
-                currentProducer.abortTransaction();
-            } catch (ProducerFencedException e) {
-                LOG.debug(
-                        "Producer {} fenced while aborting", currentProducer.getTransactionalId());
-            }
-        }
+        currentProducer.abortIfInTransaction();
     }
 
     @VisibleForTesting

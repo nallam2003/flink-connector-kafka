@@ -103,6 +103,12 @@ class FlinkKafkaInternalProducer<K, V> extends KafkaProducer<K, V> {
         super.abortTransaction();
     }
 
+    public void abortIfInTransaction() throws ProducerFencedException {
+        if(inTransaction){
+            abortTransaction();
+        }
+    }
+
     @Override
     public void commitTransaction() throws ProducerFencedException {
         LOG.debug("commitTransaction {}", transactionalId);
