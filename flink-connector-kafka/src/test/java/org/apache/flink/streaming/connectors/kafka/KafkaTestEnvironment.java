@@ -25,6 +25,7 @@ import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.operators.StreamSink;
 import org.apache.flink.streaming.connectors.kafka.internals.KafkaDeserializationSchemaWrapper;
 import org.apache.flink.streaming.connectors.kafka.partitioner.FlinkKafkaPartitioner;
+import org.apache.flink.streaming.connectors.kafka.testutils.KafkaTestEnvironmentBase;
 import org.apache.flink.streaming.util.serialization.KeyedSerializationSchema;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -36,7 +37,7 @@ import java.util.Map;
 import java.util.Properties;
 
 /** Abstract class providing a Kafka test environment. */
-public abstract class KafkaTestEnvironment {
+public abstract class KafkaTestEnvironment extends KafkaTestEnvironmentBase {
     /** Configuration class for {@link KafkaTestEnvironment}. */
     public static class Config {
 
@@ -46,7 +47,8 @@ public abstract class KafkaTestEnvironment {
         private boolean secureMode = false;
 
         /** Please use {@link KafkaTestEnvironment#createConfig()} method. */
-        private Config() {}
+        private Config() {
+        }
 
         public int getKafkaServersNumber() {
             return kafkaServersNumber;
@@ -80,39 +82,8 @@ public abstract class KafkaTestEnvironment {
         }
     }
 
-    protected static final String KAFKA_HOST = "localhost";
-
-    public static Config createConfig() {
-        return new Config();
-    }
-
-    public abstract void prepare(Config config) throws Exception;
-
-    public void shutdown() throws Exception {}
-
-    public abstract void deleteTestTopic(String topic);
-
-    public abstract void createTestTopic(
-            String topic, int numberOfPartitions, int replicationFactor, Properties properties);
-
-    public void createTestTopic(String topic, int numberOfPartitions, int replicationFactor) {
-        this.createTestTopic(topic, numberOfPartitions, replicationFactor, new Properties());
-    }
-
-    public abstract Properties getStandardProperties();
-
-    public abstract Properties getSecureProperties();
-
-    public abstract String getBrokerConnectionString();
-
-    public abstract String getVersion();
-
-    public Properties getIdempotentProducerConfig() {
-        Properties props = new Properties();
-        props.put("enable.idempotence", "true");
-        props.put("acks", "all");
-        props.put("retries", "3");
-        return props;
+    public static KafkaTestEnvironment.Config createConfig() {
+        return new KafkaTestEnvironment.Config();
     }
 
     // -- consumer / producer instances:
@@ -211,8 +182,7 @@ public abstract class KafkaTestEnvironment {
     public abstract boolean isSecureRunSupported();
 
     protected void maybePrintDanglingThreadStacktrace(String threadNameKeyword) {
-        for (Map.Entry<Thread, StackTraceElement[]> threadEntry :
-                Thread.getAllStackTraces().entrySet()) {
+        for (Map.Entry<Thread, StackTraceElement[]> threadEntry : Thread.getAllStackTraces().entrySet()) {
             if (threadEntry.getKey().getName().contains(threadNameKeyword)) {
                 System.out.println("Dangling thread found:");
                 for (StackTraceElement ste : threadEntry.getValue()) {
