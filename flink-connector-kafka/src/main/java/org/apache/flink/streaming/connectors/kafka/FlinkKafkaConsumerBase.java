@@ -146,7 +146,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
     private boolean enableCommitOnCheckpoints = true;
 
     /** User-set flag to disable filtering restored partitions with current topics descriptor. */
-    private boolean filterRestoredPartitionsWithCurrentTopicsDescriptor = true;
+    private boolean filterRestoredPartitions = true;
 
     /**
      * The offset commit mode for the consumer. The value of this can only be determined in {@link
@@ -548,7 +548,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
      * @return The consumer object, to allow function chaining.
      */
     public FlinkKafkaConsumerBase<T> disableFilterRestoredPartitionsWithSubscribedTopics() {
-        this.filterRestoredPartitionsWithCurrentTopicsDescriptor = false;
+        this.filterRestoredPartitions = false;
         return this;
     }
 
@@ -595,7 +595,7 @@ public abstract class FlinkKafkaConsumerBase<T> extends RichParallelSourceFuncti
                 }
             }
 
-            if (filterRestoredPartitionsWithCurrentTopicsDescriptor) {
+            if (filterRestoredPartitions) {
                 subscribedPartitionsToStartOffsets
                         .entrySet()
                         .removeIf(
