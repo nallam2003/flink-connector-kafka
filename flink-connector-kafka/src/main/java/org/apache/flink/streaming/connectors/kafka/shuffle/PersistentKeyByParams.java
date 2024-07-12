@@ -4,7 +4,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 
 import java.util.Properties;
 
-public class persistentKeyByParams<T> {
+public class PersistentKeyByParams<T> {
     private final DataStream<T> dataStream;
     private final String topic;
     private final int producerParallelism;
@@ -17,10 +17,8 @@ public class persistentKeyByParams<T> {
      * @param producerParallelism Parallelism of producer
      * @param numberOfPartitions Number of partitions
      * @param properties Kafka properties
-     * @param <T> Type of the input data stream
-     * @param <K> Type of key
      */
-    public persistentKeyByParams(DataStream<T> dataStream, String topic, int producerParallelism, int numberOfPartitions, Properties properties) {
+    public PersistentKeyByParams(DataStream<T> dataStream, String topic, int producerParallelism, int numberOfPartitions, Properties properties) {
         this.dataStream = dataStream;
         this.topic = topic;
         this.producerParallelism = producerParallelism;

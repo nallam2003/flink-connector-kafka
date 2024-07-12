@@ -135,7 +135,7 @@ public class FlinkKafkaShuffle {
      * @see FlinkKafkaShuffle#readKeyBy
      */
     public static <T, K> KeyedStream<T, K> persistentKeyBy(
-            persistentKeyByParams<T> persistentKeyByParams, KeySelector<T, K> keySelector) {
+            PersistentKeyByParams<T> persistentKeyByParams, KeySelector<T, K> keySelector) {
         // KafkaProducer#propsToMap uses Properties purely as a HashMap without considering the
         // default properties
         // So we have to flatten the default property to first level elements.
@@ -190,7 +190,7 @@ public class FlinkKafkaShuffle {
             Properties properties,
             int... fields) {
         return persistentKeyBy(
-                new persistentKeyByParams<>(dataStream, topic, producerParallelism, numberOfPartitions, properties), keySelector(dataStream, fields));
+                new PersistentKeyByParams<>(dataStream, topic, producerParallelism, numberOfPartitions, properties), keySelector(dataStream, fields));
     }
 
     /**
